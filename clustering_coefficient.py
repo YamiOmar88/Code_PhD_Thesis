@@ -12,8 +12,7 @@ are as follows:
 
     1. E or wE: is a dictionary that contains edges as keys and, item counts or
        weights as values (respectively). To calculate weighted edges, the user
-       may call the function wEdgesMaker(E, totSum) where totSum is the total
-       items manufactured in the manufacturing network under study.
+       may call the function wEdgesMaker(E).
 
 These functions return two things:
 
@@ -122,10 +121,14 @@ def cc_unweighted(E):
     return CC, fractions
 
 
-def wEdges_maker(E, totSum):
+def wEdges_maker(E):
+    '''Weighted edges must have a value in the range (0,1]. In order to
+    accomplish that (in the case one or more edges have values above 1), is
+    to divide the weight of all edges by that of the max weight in the graph.'''
     wE = {}
+    max_weight = max(E.values())
     for k,v in E.items():
-        wE[k] = v / float(totSum) # Total number of transactions
+        wE[k] = v / float(max_weight)
     return wE
 
 
