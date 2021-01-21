@@ -18,7 +18,7 @@
 
 
 
-def generate_dot_file(graph, node_colors, graph_name, filename):
+def generate_dot_file(graph, node_colors, graph_name, filename, edgelabel=False):
     # File creation
     file_content = ''
 
@@ -26,14 +26,19 @@ def generate_dot_file(graph, node_colors, graph_name, filename):
     file_content += 'digraph ' + graph_name + '{\n'
     file_content += 'size = "40,20";\n'
     file_content += 'graph[rankdir=TB, center=true, margin=0.05, nodesep=0.2, ranksep=0.5]\n'
-    file_content += 'node[fontname="Courier-Bold", fontsize=14]\n'
-    file_content += 'edge[arrowsize=0.2, arrowhead=normal]\n'
+    file_content += 'node[fontname="times-bold", fontsize=20]\n'
+    file_content += 'edge[arrowsize=0.2, arrowhead=normal, fontsize=8]\n'
 
     for n in graph.nodes:
-        file_content += str(n) + ' [shape=circle, style=filled, fontsize=20, color= ' + node_colors[n] + ', width=0.75, height=0.75, fixedsize=true]\n'
+        file_content += str(n) + ' [shape=circle, style=filled, color= ' + node_colors[n] + ', width=0.75, height=0.75, fixedsize=true]\n'
 
-    for k,v in graph.edges.items():
-        file_content += str(k[0]) + ' -> ' + str(k[1]) + ' [penwidth=1.5]\n'
+    if edgelabel:
+        for k,v in graph.edges.items():
+            file_content += str(k[0]) + ' -> ' + str(k[1]) + ' [penwidth=1.5, label=' + str(round(v,2)) + ']\n'
+            #file_content += str(k[0]) + ' -> ' + str(k[1]) + ' [penwidth=1.5]\n'
+    else:
+        for k,v in graph.edges.items():
+            file_content += str(k[0]) + ' -> ' + str(k[1]) + ' [penwidth=1.5]\n'
 
     file_content += '}'
 
@@ -85,3 +90,23 @@ if __name__ == "__main__":
     # Generate DOT file with network graph
     # ====================================
     generate_dot_file(G, node_colors, "Bosch", "manufacturing_network_graph.dot")
+
+
+
+    # =========================================================================
+    # PLOT SUBGRAPHS
+    # =========================================================================
+    import depth_first_search as dfs
+    in_adjlist, out_adjlist = G.adjacencyList
+    SCC = dfs.scc(out_adjlist)
+    SCC.sort()
+    SCC = [sorted(x) for x in SCC]
+
+    for number, component in enumerate(SCC):
+        if len(component) > 1:
+            filename = "manufacturing_subgraph_" + str(number) + ".dot"
+            subgraph = {k:v for k,v in edges.items() if k[0] in component and k[1] in component}
+            max_weight = max(subgraph.values())
+            subgraph = {k:v/max_weight for k,v in subgraph.items()}
+            S = Graph(subgraph)
+        generate_dot_file(S, node_colors, "BoschSubgraph", filename, edgelabel=True)
