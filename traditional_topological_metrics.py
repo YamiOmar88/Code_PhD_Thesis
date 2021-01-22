@@ -19,43 +19,56 @@ if __name__ == "__main__":
     edges = GraphFile(filename).read_edges_from_file()
     G = Graph(edges)
 
-    # Calculate in- and out-degree
-    # ============================
+    # =========================================================================
+    # DEGREE
+    # =========================================================================
     indeg, outdeg = G.degree
 
-    # Calculate in- and out-strength
-    # ==============================
+    # =========================================================================
+    # STRENGTH
+    # =========================================================================
     instr, outstr = G.strength
 
-    # Calculate betweenness centrality
-    # ================================
+    # =========================================================================
+    # BETWEENNESS CENTRALITY
+    # =========================================================================
     V = list(G.nodes)
     V.sort()
 
     betcen = betweenness_centrality.bC(V, edges, normalized=False, directed=True)
 
-    # Calculate clustering coeff. and triangles
-    # =========================================
-    # Calculate UNWEIGHTED CC and triangles
+    # =========================================================================
+    # CLUSTERING COEFFICIENT AND TRIANGLES
+    # =========================================================================
+    # Unweighted
+    # ==========
     UW_clustcoeff, UW_triangles = clustering_coefficient.cc_unweighted(edges)
     UW_C = sum(UW_clustcoeff.values())/len(UW_clustcoeff.values())
-    print("UNWEIGHTED Network clustering coefficient: ", UW_C, "\n\n\n")
+    print("BDN Clustering Coefficient: ", round(UW_C,3))
+    print("BDN - Triangles: ", UW_triangles, "\n\n\n")
 
-    # Calculate WEIGHTED CC and triangles
+    # Weighted
+    # ========
     wE = clustering_coefficient.wEdges_maker(edges)
-    W_clustcoeff, triangles = clustering_coefficient.cc_weighted(wE)
+    W_clustcoeff, W_triangles = clustering_coefficient.cc_weighted(wE)
     W_C = sum(W_clustcoeff.values())/len(W_clustcoeff.values())
-    print("WEIGHTED Network clustering coefficient: ", W_C, "\n\n\n")
+    print("WDN Clustering Coefficient: ", round(W_C,3))
+    print("WDN - Triangles: ", W_triangles, "\n\n\n")
 
 
-    # Print results
-    # =============
-
+    # =========================================================================
+    # PRINT TABLE 6.1
+    # =========================================================================
+    total_number_of_items_manufactured = 0
+    with open("data/clean_manufacturing_paths.txt", "r") as f:
+        for line in f:
+            line = line.strip().split(" ")
+            total_number_of_items_manufactured += int(line[-1])
 
     instr = {k:round(v/total_number_of_items_manufactured,2) for k,v in instr.items()}
     outstr = {k:round(v/total_number_of_items_manufactured,2) for k,v in outstr.items()}
     betcen = {k:round(v,2) for k,v in betcen.items()}
-    UW_cc = {k:round(v,4) for k,v in UW_clustcoeff.items()}
+    UW_cc = {k:round(v,2) for k,v in UW_clustcoeff.items()}
     W_cc = {k:round(v,4) for k,v in W_clustcoeff.items()}
 
     for k,v in indeg.items():
@@ -72,20 +85,38 @@ if __name__ == "__main__":
     SCC = dfs.scc(out_adjlist)
     SCC.sort()
     SCC = [sorted(x) for x in SCC]
+
+    # Print SCC
+    # =========
     print("\n\n\nStrongly Connected Components:")
     for i in SCC:
         print(i)
 
 
     # =========================================================================
-    # Subgraph Clustering Coefficient
+    # SUBGRAPH CLUSTERING COEFFICIENT
     # =========================================================================
-    print("\n\n\n\nSubgraph Clustering Coefficient:\n")
+    def subgraph_clustering_coefficient(edges, scc, weighted=True):
+        ''' '''
+        if weighted:
+            subgraph = {k:v for k,v in edges.items() if k[0] in scc and k[1] in scc}
+        else:
+            subgraph = {k:1 for k,v in edges.items() if k[0] in scc and k[1] in scc}
+
+        subgraph = clustering_coefficient.wEdges_maker(subgraph)
+        subgraph_localC, subgraph_triangles = clustering_coefficient.cc_weighted(subgraph)
+        subgraph_C = sum(subgraph_localC.values())/len(subgraph_localC.values())
+        return subgraph_C, subgraph_localC, subgraph_triangles
+    # ================================================
+
+    # Main
+    print("\n\n\n\nSubgraph Clustering Coefficient:")
     for i in SCC:
         if len(i) > 1:
-            subgraph = {k:1 for k,v in edges.items() if k[0] in i and k[1] in i}
-            subgraph = clustering_coefficient.wEdges_maker(subgraph)
-            subgraph_clustcoef, subgraph_triangles = clustering_coefficient.cc_weighted(subgraph)
-            subgraph_C = sum(subgraph_clustcoef.values())/len(subgraph_clustcoef.values())
+            w_SC, w_SlC, w_St = subgraph_clustering_coefficient(edges, i, weighted=True)
+            uw_SC, uw_SlC, uw_St = subgraph_clustering_coefficient(edges, i, weighted=False)
+            #print(i, " & ", round(uw_SC,2), " & ", round(w_SC,2), "\\\\")
+            print("SCC: {}\nBDN Triangles: {}\nWDN Triangles: {}\n\n".format(i, uw_St, w_St))
         else:
-            print(i, "0")
+            #print(i, " &  0 & 0\\\\")
+            pass
