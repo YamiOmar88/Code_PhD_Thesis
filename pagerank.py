@@ -4,12 +4,15 @@
 # ======================================================================
 # ======================================================================
 
-# NOTES: You call pageRank(E) where
-# -   E is as dictionary containing the edges as keys and the counts
-#     as values. Use i for dummy start point and f for dummy end point.
-# -   nodes is a list of nodes
+def make_transition_matrix(E, nodes):
+    '''Internal function to calculate the transition matrix.
+    Input variables:
+        - E: dictionary with edges as keys and weight as value.
+        - nodes: list of nodes.
 
-def makeMatrix(E, nodes):
+    Output variables:
+        - matrix: dictionary corresponding to the transition matrix.
+    '''
     colSum = {}
     for n in nodes:
         colSum[n] = 0
@@ -24,23 +27,30 @@ def makeMatrix(E, nodes):
 
 
 
-def vectorE(M, nodes):
-    v = {k: 0.0 for k in nodes}
-    for k in M.keys():
-        if k[0] == 'i':
-            v[k[1]] = float(M[k])
-    return v
 
+def pagerank(E, nodes, start_nodes=None, B=0.85):
+    '''Function allowing to calculate the PageRank algorithm.
+    Input variables:
+        - E: dictionary with edges as keys and weight as value.
+        - nodes: list of nodes.
+        - start_nodes: (default=None) dictionary of nodes with their starting
+                       fraction.
+        - B: (default=0.85) taxation value, typically between 0.8 and 0.9.
 
+    Output variables:
+        - vp
+    '''
+    nodes.sort()
+    M = make_transition_matrix(E, nodes)
 
-def pageRank(E, nodes, B=0.85):
-    #nodes.sort()
-    M = makeMatrix(E, nodes)
-    e = vectorE(M, nodes)
-    aux = float( len(nodes) )
-    v = {k: 1/aux for k in nodes}
+    if start_nodes == None:
+        e = {n: 1/len(nodes) for n in nodes}
+    else:
+        e = start_nodes
 
-    vp = {k: 0.0 for k in nodes}
+    v = {k: 1/len(nodes) for k in nodes}
+
+    vp = {k: 0 for k in nodes}
     while any([abs(i - j) for i,j in zip(vp.values(), v.values())]) > 0.001:
         for n in nodes:
             mult = 0
