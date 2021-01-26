@@ -8,7 +8,24 @@
 from graphfile import GraphFile
 from graph import Graph
 import pagerank
+import matplotlib.pyplot as plt
 
+# =============================================================================
+# FUNCTION DEFINITIONS
+# =============================================================================
+def make_plot(x, y, color, marker, filename, xlabel="Nodes", ylabel="PageRank"):
+    ''' '''
+    plt.scatter(x, y, marker=marker, c=color)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.savefig(filename)
+    plt.close()
+
+
+
+# =============================================================================
+# MAIN
+# =============================================================================
 if __name__ == "__main__":
     # Read data
     # =========
@@ -47,3 +64,30 @@ if __name__ == "__main__":
     # Print table for LaTeX
     for k,v in PR_1.items():
         print(k, " & ", round(v,3), " & ", round(PR_2[k],3), " & ", round(PR_3[k],3), "\\\\")
+
+
+    # PLOT RESULTS
+    # ============
+    x = list(PR_1.keys())
+    x.sort()
+    y1 = [PR_1[i] for i in x]
+    y2 = [PR_2[i] for i in x]
+    y3 = [PR_3[i] for i in x]
+
+    #make_plot(x, y1, color="red", marker="o", filename="figures/pagerank1.pdf")
+    #make_plot(x, y2, color="blue", marker="o", filename="figures/pagerank2.pdf")
+    #make_plot(x, y3, color="green", marker="o", filename="figures/pagerank3.pdf")
+
+
+    plt.figure(figsize=(6,10))
+    plt.grid(True, axis="y")
+    plt.scatter(y1, x, marker="o", c="red")
+    plt.scatter(y2, x, marker="x", c="blue")
+    plt.scatter(y3, x, marker="^", c="green")
+    plt.yticks(range(52))
+    plt.xlabel("PageRank")
+    plt.ylabel("Nodes")
+    plt.legend(["$PR_1$", "$PR_2$", "$PR_3$"], loc='upper right')
+    plt.tight_layout()
+    plt.savefig("figures/pagerank.pdf")
+    plt.close()
