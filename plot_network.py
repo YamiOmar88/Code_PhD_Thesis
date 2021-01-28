@@ -9,11 +9,11 @@
 
 # ===== Function definitions ============
 
-# def add_self_loops(paths, edges):
-#     for k,v in paths.items():
-#         self_loop = (k[-1], k[-1])
-#         edges[self_loop] = edges.get(self_loop, 0) + v
-#     return edges
+def add_self_loops(paths, edges):
+    for k,v in paths.items():
+        self_loop = (k[-1], k[-1])
+        edges[self_loop] = edges.get(self_loop, 0) + v
+    return edges
 
 
 
@@ -56,19 +56,18 @@ if __name__ == "__main__":
     # =====================
     from graphfile import GraphFile
     from graph import Graph
-    import multiprocessing
     import datetime
 
     # Read data: clean paths and clean edges
     # ======================================
-    # filename_paths = "data/clean_manufacturing_paths.txt"
+    filename_paths = "data/clean_manufacturing_paths.txt"
     filename_edges = "data/clean_manufacturing_edges.txt"
     edges = GraphFile(filename_edges).read_edges_from_file()
-    # paths = GraphFile(filename_paths).read_paths_with_count()
+    paths = GraphFile(filename_paths).read_paths_with_count()
 
     # Generate graph from clean edges
     # ===============================
-    # edges = add_self_loops(paths, edges)
+    edges = add_self_loops(paths, edges)
     G = Graph(edges)
 
     print("Number of nodes: ", len(G.nodes))
@@ -89,24 +88,26 @@ if __name__ == "__main__":
 
     # Generate DOT file with network graph
     # ====================================
-    generate_dot_file(G, node_colors, "Bosch", "manufacturing_network_graph.dot")
+    today = datetime.datetime.now().strftime("%Y_%m_%d")
+    filename = today + "_manufacturing_network_graph.dot"
+    generate_dot_file(G, node_colors, "Bosch", filename)
 
 
 
     # =========================================================================
     # PLOT SUBGRAPHS
     # =========================================================================
-    import depth_first_search as dfs
-    in_adjlist, out_adjlist = G.adjacencyList
-    SCC = dfs.scc(out_adjlist)
-    SCC.sort()
-    SCC = [sorted(x) for x in SCC]
-
-    for number, component in enumerate(SCC):
-        if len(component) > 1:
-            filename = "manufacturing_subgraph_" + str(number) + ".dot"
-            subgraph = {k:v for k,v in edges.items() if k[0] in component and k[1] in component}
-            max_weight = max(subgraph.values())
-            subgraph = {k:v/max_weight for k,v in subgraph.items()}
-            S = Graph(subgraph)
-        generate_dot_file(S, node_colors, "BoschSubgraph", filename, edgelabel=True)
+    # import depth_first_search as dfs
+    # in_adjlist, out_adjlist = G.adjacencyList
+    # SCC = dfs.scc(out_adjlist)
+    # SCC.sort()
+    # SCC = [sorted(x) for x in SCC]
+    #
+    # for number, component in enumerate(SCC):
+    #     if len(component) > 1:
+    #         filename = "manufacturing_subgraph_" + str(number) + ".dot"
+    #         subgraph = {k:v for k,v in edges.items() if k[0] in component and k[1] in component}
+    #         max_weight = max(subgraph.values())
+    #         subgraph = {k:v/max_weight for k,v in subgraph.items()}
+    #         S = Graph(subgraph)
+    #     generate_dot_file(S, node_colors, "BoschSubgraph", filename, edgelabel=True)
