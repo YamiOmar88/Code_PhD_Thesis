@@ -1,2 +1,3 @@
 data/train_date.csv
 __pycache__
+flow_networks/results
