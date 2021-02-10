@@ -74,6 +74,17 @@ class Graph:
             return self._remove_edges_below_tolerance(self.edges, tolerance)
 
 
+    def find_antiparallel_edges(self):
+        '''This function finds pairs of antiparallel edges.'''
+        antiparallel = []
+        for k in self.edges.keys():
+            antiparallel_edge = (k[1],k[0])
+            if self.edges.get(antiparallel_edge, False):
+                antiparallel.append(k)
+        antiparallel.sort()
+        return antiparallel
+
+
     def _get_downstream_nodes_of_i(self, i):
         '''This function finds the downstream neighbours of node i.'''
         downstream_nodes_of_i = list()
