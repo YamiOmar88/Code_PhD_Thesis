@@ -13,11 +13,17 @@ import matplotlib.pyplot as plt
 # =============================================================================
 # FUNCTION DEFINITIONS
 # =============================================================================
-def make_plot(x, y, color, marker, filename, xlabel="Nodes", ylabel="PageRank"):
+def make_plot(x, y, color, marker, filename, xlabel="node ids", ylabel="PageRank"):
     ''' '''
-    plt.scatter(x, y, marker=marker, c=color)
+    plt.figure(figsize=(15,5))
+    plt.scatter(x, y, s=75, marker=marker, c=color)
+    plt.xticks(range(52), rotation=45)
+    plt.yticks([x*0.01 for x in range(11)])
+    plt.ylim(0, 0.1)
+    plt.grid(True, which="both", axis="both")
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.tight_layout()
     plt.savefig(filename)
     plt.close()
 
@@ -74,9 +80,9 @@ if __name__ == "__main__":
     y2 = [PR_2[i] for i in x]
     y3 = [PR_3[i] for i in x]
 
-    #make_plot(x, y1, color="red", marker="o", filename="figures/pagerank1.pdf")
-    #make_plot(x, y2, color="blue", marker="o", filename="figures/pagerank2.pdf")
-    #make_plot(x, y3, color="green", marker="o", filename="figures/pagerank3.pdf")
+    make_plot(x, y1, color="red", marker="o", filename="figures/pagerank1.pdf")
+    make_plot(x, y2, color="blue", marker="x", filename="figures/pagerank2.pdf")
+    make_plot(x, y3, color="green", marker="^", filename="figures/pagerank3.pdf")
 
 
     plt.figure(figsize=(6,10))
